@@ -1,3 +1,6 @@
+import { GameObject } from './GameObject.js';
+import { IntroAsteroid } from './IntroAsteroid.js';
+
 export class Main {
   /** @type { HTMLCanvasElement } */
   #canvas;
@@ -6,6 +9,9 @@ export class Main {
   #fpsCount;
   #fpsDeltaTime;
   #fps;
+  /** @type {GameObject[]} */
+  #gameObjects;
+  #context;
 
   /**
    * 
@@ -18,6 +24,17 @@ export class Main {
 
     this.#fpsCount = 0;
     this.#fps = 0;
+
+    this.#gameObjects = [];
+
+    const logo = new GameObject('/sprites/logo.png', (this.#width / 2) - (120), 20);
+    const asteroid = new IntroAsteroid(50, 125);
+
+    this.#gameObjects.push(logo, asteroid);
+
+    this.#context = {
+      canvas: this.#canvas.canvas
+    };
 
     this.run = this.run.bind(this);
   }
@@ -32,9 +49,21 @@ export class Main {
       this.#fps = this.#fpsCount;
       this.#fpsCount = 0;
     }
+
+    //
+    this.#gameObjects.forEach((gameObject) => {
+      gameObject.run(this.#context);
+    });
+    //
     
     this.#canvas.fillStyle = '#000000';
     this.#canvas.fillRect(0, 0, this.#width, this.#height);
+
+    //
+    this.#gameObjects.forEach((gameObject) => {
+      this.#canvas.drawImage(gameObject.sprite, gameObject.x, gameObject.y);
+    });
+    //
 
     this.#canvas.fillStyle = '#ffffff';
     this.#canvas.textAlign = 'left';
