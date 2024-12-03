@@ -1,5 +1,5 @@
-import { GameObject } from './GameObject.js';
-import { IntroAsteroid } from './IntroAsteroid.js';
+import { InputController } from './InputController.js';
+import { Intro } from './scenes/Intro.js';
 
 export class Main {
   /** @type { HTMLCanvasElement } */
@@ -9,37 +9,46 @@ export class Main {
   #fpsCount;
   #fpsDeltaTime;
   #fps;
-  /** @type {GameObject[]} */
-  #gameObjects;
+  #scene;
   #context;
+  #debug = false;
+  #input;
 
   /**
    * 
    * @param {HTMLCanvasElement} canvas 
    */
   constructor(canvas) {
+    /** @type {HTMLCanvasElement} */
     this.#canvas = canvas.getContext('2d');
     this.#width = canvas.width;
     this.#height = canvas.height;
+    this.#input = new InputController();
 
     this.#fpsCount = 0;
     this.#fps = 0;
 
-    this.#gameObjects = [];
-
-    const logo = new GameObject('/sprites/logo.png', (this.#width / 2) - (120), 20);
-    const asteroid = new IntroAsteroid(50, 125);
-
-    this.#gameObjects.push(logo, asteroid);
+    this.#scene = new Intro(this);
 
     this.#context = {
-      canvas: this.#canvas.canvas
+      canvas: this.#canvas.canvas,
+      input: this.#input,
+      game: this
     };
 
     this.run = this.run.bind(this);
   }
 
+  get width() { return this.#width; }
+  get height() { return this.#height; }
+
+  changeScene(scene) {
+    this.#scene = scene;
+  }
+
   run(ts) {
+    this.#input.run();
+
     if (this.#fpsDeltaTime === undefined) {
       this.#fpsDeltaTime = Date.now();
     }
@@ -51,18 +60,14 @@ export class Main {
     }
 
     //
-    this.#gameObjects.forEach((gameObject) => {
-      gameObject.run(this.#context);
-    });
+    this.#scene.run(this.#context);
     //
     
     this.#canvas.fillStyle = '#000000';
     this.#canvas.fillRect(0, 0, this.#width, this.#height);
 
     //
-    this.#gameObjects.forEach((gameObject) => {
-      this.#canvas.drawImage(gameObject.sprite, gameObject.x, gameObject.y);
-    });
+    this.#scene.render(this.#canvas, this.#debug);
     //
 
     this.#canvas.fillStyle = '#ffffff';

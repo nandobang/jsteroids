@@ -5,10 +5,11 @@ export class IntroAsteroid extends GameObject {
   #direction;
   #changingDirection;
 
-  constructor(x, y) {
+  constructor(x, y, speed, scale) {
     super('/sprites/asteroid-32.png', x, y);
 
-    this.#speed = 2;
+    this.#speed = speed;
+    this.scale = scale;
     this.#direction = 1;
     this.#changingDirection = false;
   }
@@ -24,5 +25,7 @@ export class IntroAsteroid extends GameObject {
       this.#direction = this.#direction * -1;
       this.#changingDirection = false;
     }
+
+    this.rotationAngle += 0.05;
   }
 }
