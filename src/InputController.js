@@ -1,5 +1,7 @@
 export class InputController {
-  #currentKey;
+  /** @type {Gamepad} */
+  #gamepad;
+  #currentKeys;
 
   #upKeyState;
   #downKeyState;
@@ -26,6 +28,8 @@ export class InputController {
   #wasActionReleased;
 
   constructor() {
+    this.#currentKeys = [];
+
     this.#upKeyState = 0;
     this.#downKeyState = 0;
     this.#leftKeyState = 0;
@@ -51,11 +55,21 @@ export class InputController {
     this.#wasActionReleased = false;
 
     document.addEventListener('keydown', (event) => {
-      this.#currentKey = event.key;
+      if (!this.#currentKeys.includes(event.key)) {
+        this.#currentKeys.push(event.key);
+      }
+    });
+    
+    document.addEventListener('keyup', (event) => {
+      const keyIndex = this.#currentKeys.indexOf(event.key);
+      
+      if (keyIndex >= 0) {
+        this.#currentKeys.splice(keyIndex, 1);
+      }
     });
 
-    document.addEventListener('keyup', (event) => {
-      this.#currentKey = null;
+    window.addEventListener('gamepadconnected', (event) => {
+      this.#gamepad = navigator.getGamepads()[0];
     });
   }
 
@@ -78,6 +92,8 @@ export class InputController {
   get wasActionReleased() { return this.#wasActionReleased; }
 
   run() {
+    this.#gamepad = navigator.getGamepads()[0];
+    
     this.#isUpPressed = false;
     this.#isDownPressed = false;
     this.#isLeftPressed = false;
@@ -96,7 +112,7 @@ export class InputController {
     this.#wasRightReleased = false;
     this.#wasActionReleased = false;
 
-    if (this.#currentKey == 'ArrowUp') {
+    if (this.#currentKeys.includes('ArrowUp') || (this.#gamepad != null && this.#gamepad.axes[1] == -1)) {
       if (this.#upKeyState == 0) this.#upKeyState = 1;
       if (this.#upKeyState == 1 && this.#wasUpPressed == false) this.#wasUpPressed = true;
       
@@ -108,7 +124,7 @@ export class InputController {
       this.#upKeyState = 0;
     }
 
-    if (this.#currentKey == 'ArrowDown') {
+    if (this.#currentKeys.includes('ArrowDown') || (this.#gamepad != null && this.#gamepad.axes[1] == 1)) {
       if (this.#downKeyState == 0) this.#downKeyState = 1;
       if (this.#downKeyState == 1 && this.#wasDownPressed == false) this.#wasDownPressed = true;
       
@@ -120,7 +136,7 @@ export class InputController {
       this.#downKeyState = 0;
     }
 
-    if (this.#currentKey == 'ArrowLeft') {
+    if (this.#currentKeys.includes('ArrowLeft') || (this.#gamepad != null && this.#gamepad.axes[0] == -1)) {
       if (this.#leftKeyState == 0) this.#leftKeyState = 1;
       if (this.#leftKeyState == 1 && this.#wasLeftPressed == false) this.#wasLeftPressed = true;
       
@@ -132,7 +148,7 @@ export class InputController {
       this.#leftKeyState = 0;
     }
 
-    if (this.#currentKey == 'ArrowRight') {
+    if (this.#currentKeys.includes('ArrowRight') || (this.#gamepad != null && this.#gamepad.axes[0] == 1)) {
       if (this.#rightKeyState == 0) this.#rightKeyState = 1;
       if (this.#rightKeyState == 1 && this.#wasRightPressed == false) this.#wasRightPressed = true;
       
@@ -144,7 +160,7 @@ export class InputController {
       this.#rightKeyState = 0;
     }
 
-    if (this.#currentKey == ' ') {
+    if (this.#currentKeys.includes(' ') || (this.#gamepad != null && this.#gamepad.buttons[0].pressed)) {
       if (this.#actionKeyState == 0) this.#actionKeyState = 1;
       if (this.#actionKeyState == 1 && this.#wasActionPressed == false) this.#wasActionPressed = true;
       

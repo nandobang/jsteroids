@@ -25,3 +25,7 @@ body {
   height: 360px;
   background-color: black;
 }
+
+#debug {
+  color: white;
+}

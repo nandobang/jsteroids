@@ -1,3 +1,4 @@
+import { Game } from './Game.js';
 import { InputController } from './InputController.js';
 import { Intro } from './scenes/Intro.js';
 
@@ -69,10 +70,6 @@ export class Main {
     //
     this.#scene.render(this.#canvas, this.#debug);
     //
-
-    this.#canvas.fillStyle = '#ffffff';
-    this.#canvas.textAlign = 'left';
-    this.#canvas.fillText('Hello!', 5, 12);
 
     this.#canvas.fillStyle = '#ffcc00';
     this.#canvas.textAlign = 'right';
